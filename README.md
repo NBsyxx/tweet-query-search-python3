@@ -78,9 +78,39 @@ ti.search("neeva hello")
 ```
 
 ## Design decisions, tradeoffs, assumptions
-
+I decided to use memory for speed, therefore a lot of dictionaries in the code.
+The whole application is built over the assumptions that time is unique to tweet.
 
 ## Complexity analysis
+Time complexity 
+We have N tweets, average tweet length L in words, and the query length Q, Average occurance for each word in all tweets C
+The preprocessing will take O(NL) for preprocessing
+The query will take O(QC) for searching 
 
+Spatial complexity
+The preprocessing will take O(NLC) memory space 
+Search takes negligible space. 
+
+For the starter code, time complexity of preprocessing is O(NL) and it will take O(NLQ) for searching, it it only takes O(NL) spaces
 
 ## code updated tests, and time bench marks
+on 11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz 
+in terms of bench marks
+
+**for starter version**
+it takes 0.002s to preprocess 10000 tweet
+
+it takes 3.05s to run 1000 times of 
+```
+ti.search("neeva hello")
+```
+
+**for my version**
+it takes 0.03s to preprocess 10000 tweet
+
+it takes 0.14s to run 1000 times of 
+```
+ti.search("neeva hello")
+```
+
+for the starter version 
