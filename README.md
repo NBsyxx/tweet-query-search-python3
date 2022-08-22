@@ -80,6 +80,7 @@ ti.search("neeva hello")
 ## Design decisions, tradeoffs, assumptions
 I decided to use memory for speed, therefore a lot of dictionaries in the code.
 The whole application is built over the assumptions that time is unique to tweet.
+User can input any string for the search, but everything will be processed according to rules
 
 ## Complexity analysis
 Time complexity 
@@ -94,8 +95,51 @@ Search takes negligible space.
 For the starter code, time complexity of preprocessing is O(NL) and it will take O(NLQ) for searching, it it only takes O(NL) spaces
 
 ## code updated tests, and time bench marks
+
+### query syntax
+**TYPE1 non-queries**: words without "&" and "|" will be parsed as non-queries, and we return the intersaction of each words, we allow the use of "!" to represent sentences not having this words
+**TYPE2 queries**: words can be with "&" and "|", but it do require space between each word. "&" means intersaction and "|" means union, we allow the use of "!" to represent sentences not having this words. The default order for processing is prefix which is from left to right, we can adjust the order by adding "("")"
+
+### code showcases and tests
+
+    ** testing non-queries **
+    print(ti.search("neeva this him"))
+    return: [('that we him this neeva know', 9102), ('people him this neeva for', 8383), ('what by of special him this neeva a', 8128), 
+    ('neeva their him this see thing they', 7644), ('can special people him this neeva be who in', 5690)]
+    
+    print(ti.search("neeva this him !know"))
+    return:  [('people him this neeva for', 8383), ('what by of special him this neeva a', 8128), ('neeva their him this see thing they', 7644),
+    ('can special people him this neeva be who in', 5690), ('take of special him this neeva', 4297)]
+    
+    print(ti.search("brother"))
+    return:[]
+    
+     ** testing queries **
+    print(ti.search("neeva & this & ( ( !him & know ) | ( very & because ) )"))
+    return:  [('because very this neeva know', 9969), ('special it this neeva know could', 9314), ('that because very when than this neeva', 7258),
+    ('time year special like those this neeva she for know', 7097), ('time it when this neeva know a', 6805)]
+    
+    ** testing mixing expression **
+    print(ti.search("neeva | this & him"))
+    return:  since it is postfix parsing so it goes from left to right  
+
+     ** testing random things  **
+    print(ti.search("neeva | & him"))
+    stdout: Query Syntax Error
+    return: [('', -1)]
+
+    print(ti.search("| & "))
+    stdout: Query Syntax Error
+    return:  [('', -1)]
+
+    print(ti.search("neeva&hello"))
+    it will read it and parse it as a query sentence since there's no "neeva&hello"
+    return: []
+
+
 on 11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz 
 in terms of bench marks
+
 
 **for starter version**
 it takes 0.002s to preprocess 10000 tweet
