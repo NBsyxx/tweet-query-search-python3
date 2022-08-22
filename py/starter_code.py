@@ -3,13 +3,9 @@ Please use Python version 3.7+
 """
 
 import csv
-from sys import prefix
-from turtle import pos
 from typing import List, Tuple
 from collections import defaultdict
 import time
-from itertools import combinations
-from random import randint
 
 class TweetIndex:
     # Starter code--please override
@@ -23,7 +19,6 @@ class TweetIndex:
         # set of query operations
         self.Operators = set(['|', '&', '(', ')'])  # collection of Operators
         self.Priority = {'|':1, '&':1} # dictionary having priorities of Operators, future we can have more in the query 
-
 
 
     def process_tweets(self, list_of_timestamps_and_tweets: List[Tuple[str, int]]) -> None:
@@ -50,7 +45,6 @@ class TweetIndex:
         postfix = [] 
         for character in infix:
             if character not in self.Operators:  # if an operand append in postfix infix
-                print(character)
                 postfix.append(self.word_to_time[character])
             elif character=='(':  # else Operators push onto stack
                 stack.append('(')
@@ -64,7 +58,6 @@ class TweetIndex:
                 stack.append(character)
         while stack:
             postfix.append(stack.pop())
-        print("postfix:",postfix)
         return postfix
     
 
@@ -74,10 +67,12 @@ class TweetIndex:
             if isinstance(cur,set):
                 stack.append(cur)
             if cur in self.Operators:
+                if len(stack) <= 1: 
+                    print("Query Syntax Error")
+                    return [-1]
                 top1 = stack.pop()
                 top2 = stack.pop()
                 stack.append(self.eval(top1,top2,cur))
-        print("Evaluation success",stack)
         return list(stack[0])
 
 
@@ -87,7 +82,6 @@ class TweetIndex:
         if op == "|":
             return a | b 
         
-
 
     def search(self, query: str) -> List[Tuple[str, int]]:
         """
@@ -99,17 +93,24 @@ class TweetIndex:
         :return: a list of tuples of the form (tweet text, tweet timestamp), ordered by highest timestamp tweets first. 
         If no such tweet exists, returns empty list.
         """
-
         list_of_words = query.split(" ")
-        list_of_words = self.parse_infix_to_postfix(list_of_words)
-        list_of_times = self.eval_postfix(list_of_words)
+        if len(list_of_words) >= 2 and "&" not in query and "|" not in query:
+            # it is a non-query
+            list_of_times = self.total_time
+            # print(self.word_to_time["neeva"])
+            for i in range(len(list_of_words)):
+                list_of_times = list_of_times & self.word_to_time[list_of_words[i]]
+            list_of_times = list(list_of_times)
+        else:      
+            # it is a query    
+            list_of_words = self.parse_infix_to_postfix(list_of_words)
+            list_of_times = self.eval_postfix(list_of_words)
         list_of_times.sort(reverse=True)
-
         return [(self.list_of_tweets[t],t) for t in list_of_times[0:5]]
 
 if __name__ == "__main__":
     # A full list of tweets is available in data/tweets.csv for your use.
-    tweet_csv_filename = "../data/small.csv"
+    tweet_csv_filename = "../data/tweets.csv"
     list_of_tweets = []
     with open(tweet_csv_filename, "r") as f:
         csv_reader = csv.reader(f, delimiter=",")
@@ -121,7 +122,47 @@ if __name__ == "__main__":
             tweet = str(row[1])
             list_of_tweets.append((timestamp, tweet))
 
+    
     ti = TweetIndex()
+    
+    # test speed of preprocessing
+    t0 = time.time()
     ti.process_tweets(list_of_tweets)
-    print(ti.search("this & is & ( neeva | !me ) & this & is & ( neeva | !me )") )
-    print("Success!")
+    print(time.time() - t0)
+
+    # testing non-queries
+    print(ti.search("neeva this him"))
+    #[('that we him this neeva know', 9102), ('people him this neeva for', 8383), ('what by of special him this neeva a', 8128), ('neeva their him this see thing they', 7644), ('can special people him this neeva be who in', 5690)]
+    
+    print(ti.search("neeva this him !know"))
+    # [('people him this neeva for', 8383), ('what by of special him this neeva a', 8128), ('neeva their him this see thing they', 7644), ('can special people him this neeva be who in', 5690), ('take of special him this neeva', 4297)]
+    
+    print(ti.search("brother"))
+    #[]
+    
+    # testing queries
+    print(ti.search("neeva & this & ( ( !him & know ) | ( very & because ) )"))
+    # [('because very this neeva know', 9969), ('special it this neeva know could', 9314), ('that because very when than this neeva', 7258), ('time year special like those this neeva she for know', 7097), ('time it when this neeva know a', 6805)]
+    
+    # testing mixing expression
+    print(ti.search("neeva | this & him"))
+    # since it is postfix parsing so it goes from left to right  
+
+    # testing random things 
+    print(ti.search("neeva | & him"))
+    # it will stdout Query Syntax Error
+    # and return [('', -1)]
+
+    print(ti.search("| & "))
+    # it will stdout Query Syntax Error
+    # and return [('', -1)]
+
+    print(ti.search("neeva&hello"))
+    # it will read it and parse it as a query sentence since there's no "neeva&hello"
+    # and return []
+
+    # test speed
+    t0 = time.time()
+    for i in range(1000):
+        ti.search("neeva & hello")
+    print(time.time() - t0)
