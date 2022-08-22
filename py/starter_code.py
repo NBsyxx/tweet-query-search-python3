@@ -166,3 +166,9 @@ if __name__ == "__main__":
     for i in range(1000):
         ti.search("neeva & hello")
     print(time.time() - t0)
+
+    # test speed
+    t0 = time.time()
+    for i in range(1000):
+        ti.search("neeva & this & ( ( !him & know ) | ( very & because ) )")
+    print(time.time() - t0)
