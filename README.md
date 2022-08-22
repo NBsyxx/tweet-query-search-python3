@@ -80,24 +80,34 @@ ti.search("neeva hello")
 ## Design decisions, tradeoffs, assumptions
 I decided to use memory for speed, therefore a lot of dictionaries in the code.
 The whole application is built over the assumptions that time is unique to tweet.
-User can input any string for the search, but everything will be processed according to rules
+User can input any string for the search, but everything will be processed according to rules.
 
 ## Complexity analysis
 Time complexity 
 We have N tweets, average tweet length L in words, and the query length Q, Average occurance for each word in all tweets C
-The preprocessing will take O(NL) for preprocessing
+
+The process_tweets() will take O(NL) for preprocessing
 The query will take O(QC) for searching 
 
 Spatial complexity
 The preprocessing will take O(NLC) memory space 
 Search takes negligible space. 
 
-For the starter code, time complexity of preprocessing is O(NL) and it will take O(NLQ) for searching, it it only takes O(NL) spaces
+For the starter code, time complexity of preprocessing is O(NL) and it will take O(NLQ) for searching (very slow), it only takes O(NL) spaces
 
 ## code updated tests, and time bench marks
 
 ### query syntax
+**Where is syntax**: it is the string that user put in search function of TweetIndex class, a most basic structure is as below
+
+``` python
+ti = TweetIndex()
+ti.process_tweets(list_of_tweets)
+ti.search("query")
+```
+
 **TYPE1 non-queries**: words without "&" and "|" will be parsed as non-queries, and we return the intersaction of each words, we allow the use of "!" to represent sentences not having this words
+
 **TYPE2 queries**: words can be with "&" and "|", but it do require space between each word. "&" means intersaction and "|" means union, we allow the use of "!" to represent sentences not having this words. The default order for processing is prefix which is from left to right, we can adjust the order by adding "("")"
 
 ### code showcases and tests
@@ -157,4 +167,8 @@ it takes 0.14s to run 1000 times of
 ti.search("neeva hello")
 ```
 
-for the starter version 
+it takes 0.21s to run 1000 times of 
+```
+ti.search("neeva & this & ( ( !him & know ) | ( very & because ) )")
+```
+
