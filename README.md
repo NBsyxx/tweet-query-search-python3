@@ -1,4 +1,28 @@
-# tweet-search
+# Tweet Query Search Python3
+
+## How to run it?
+Just as the default, init the search engine by process tweets
+For single search use 
+
+>TweetIndex.search("your | ( query & here )")
+
+```python
+ti = TweetIndex()
+ti.process_tweets(list_of_tweets)
+ti.search("neeva hello")
+```
+**query syntax**
+
+**Where we use syntax?**: it is the string that user put in search function of TweetIndex class, a most basic structure is as below
+
+``` python
+ti = TweetIndex()
+ti.process_tweets(list_of_tweets)
+ti.search("query")
+
+# we can go with a query
+ti.search("this & ( ( !him & know ) | ( very & because ) )")
+```
 
 ## Approach
 
@@ -65,17 +89,6 @@ def search(self, query: str) -> List[Tuple[str, int]]:
         return [(self.list_of_tweets[t],t) for t in list_of_times[0:5]]
 ```
 
-## How to run it?
-Just as the default, init the search engine by process tweets
-For single search use 
-
->TweetIndex.search("your | ( query & here )")
-
-```python
-ti = TweetIndex()
-ti.process_tweets(list_of_tweets)
-ti.search("neeva hello")
-```
 
 ## Design decisions, tradeoffs, assumptions
 I decided to use memory for speed, therefore a lot of dictionaries in the code.
